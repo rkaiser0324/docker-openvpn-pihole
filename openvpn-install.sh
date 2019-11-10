@@ -110,30 +110,23 @@ docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-c
 
 echo -e "${YELLOW}Retrieving the client configuration with embedded certificates...${NC}"
 
-echo -e "\n$CLIENTNAME ok\n"
-
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient $CLIENTNAME > $OVPN_DATA/$CLIENTNAME.ovpn
 
-# read current ServerIP
-# HostIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
-# TODO: This will fail on MacOS, no `ip` command
-# if [ hostname -i ] then
-#     # read IP with Linux Host
-#     HostIP=`hostname -i`
-# else
-#     # read IP with MacOS Host
-#     HostIP=`ipconfig getifaddr en0`
-# fi
-
-# TODO support geting IP address on Windows Quickstart Terminal
-HostIP=192.168.1.101
-
-# Show all values
-echo -e "${CYAN}____________________________________________________________________________${NC}"
-echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Password is set:      $PIHOLE_PASSWORD_now                 ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Admin Page is set to: http://$HostIP:8081/admin            ${NC}"
-echo -e "${CYAN}____________________________________________________________________________${NC}\n"
+if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]
+then
+    HostIP=`docker-machine ip`
+else
+    # read current ServerIP
+    # HostIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+    # TODO: This will fail on MacOS, no `ip` command
+    if hostname -I | awk '{print $1}' ; then
+        # read IP with Linux Host
+        HostIP=`hostname -I | awk '{print $1}'`
+    else
+        # read IP with MacOS Host
+        HostIP=`ipconfig getifaddr en0`
+    fi
+fi
 
 #Note: If you remove the docker container by mistake, simply copy and paster 4TH Step, all will set as previously.
 
@@ -155,5 +148,12 @@ echo "API_QUERY_LOG_SHOW=blockedonly" >> pihole/setupVars.conf
 
 # run docker-compose
 docker-compose up -d
+
+# Show all values
+echo -e "${CYAN}____________________________________________________________________________${NC}"
+echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Password is set:      $PIHOLE_PASSWORD_now                 ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Admin Page is set to: http://$HostIP:8081/admin            ${NC}"
+echo -e "${CYAN}____________________________________________________________________________${NC}\n"
 
 echo -e "${GREEN}Docker container started.${NC}"
