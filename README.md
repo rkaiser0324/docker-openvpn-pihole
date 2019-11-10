@@ -22,6 +22,12 @@ Now you can use this repository with the Hardwaretype x86_x64 and amr (Test with
 ```bash
 openvpn-install.sh
 ```
+
+To check a running container:
+```bash
+docker container exec vpn_pihole bash
+```
+
 1. OpenVPN create certificate and first user [Source](https://github.com/kylemanna/docker-openvpn/blob/master/docs/docker-compose.md)
 
 Follow User Entry you have to made
