@@ -60,33 +60,7 @@ read -p "Choose your VPN protocol (tcp / [udp]): " PROTOCOL
 
 
 # set the Pi-Hole Web Admin Password
-# read current PiHole Admin Password from docker-compose.yml
-PIHOLE_PASSWORD_OLD=`grep 'WEBPASSWORD' docker-compose.yml | awk '{print $2}'`
-
-# Pi-Hole Web Admin Password
-read -p "Please enter the Pi-Hole Admin Password (default [$PIHOLE_PASSWORD_OLD]): " PIHOLE_PASSWORD_NEW
-    PIHOLE_PASSWORD_NEW=${PIHOLE_PASSWORD_NEW:-$PIHOLE_PASSWORD_OLD}   # set the default Password (if user skip this entry)
-
-#    echo "new: $PIHOLE_PASSWORD_NEW"
-#    echo "old: $PIHOLE_PASSWORD_OLD"
-
-            if [ "$PIHOLE_PASSWORD_NEW" != $PIHOLE_PASSWORD_OLD ]; then
-                # change password
-                sed -in "/WEBPASSWORD/s/$PIHOLE_PASSWORD_OLD/$PIHOLE_PASSWORD_NEW/g" docker-compose.yml        # search for WEBPASSWORD and replace this Password
-                PIHOLE_PASSWORD_now=`grep 'WEBPASSWORD' docker-compose.yml | awk '{print $2}'`
-        
-        # echo -e "\n***********************************************************"
-        # echo -e "\n * New Pi-Hole Password is set: $PIHOLE_PASSWORD_now *"
-        # echo -e "\n***********************************************************"
-        
-            else
-                # use default password
-                PIHOLE_PASSWORD_now=`grep 'WEBPASSWORD' docker-compose.yml | awk '{print $2}'`
-                
-        # echo -e "\n***********************************************************"
-        # echo -e "\n * You don't change Pi-Hole Password: $PIHOLE_PASSWORD_now *"
-        # echo -e "\n***********************************************************"             
-            fi
+read -p "Please enter the Pi-Hole Admin Password: " PIHOLE_ADMIN_PASSWORD
 
 echo -e "${YELLOW}Reading IPv4 from Pi-Hole container...${NC}"
 
@@ -143,17 +117,27 @@ docker network inspect vpn-net &>/dev/null ||
     docker network create --driver=bridge --subnet=172.110.1.0/24 --gateway=172.110.1.1 vpn-net
 
 # set DNSSEC=true to pihole/setupVars.conf 
-mkdir -p pihole && echo "DNSSEC=true" >> pihole/setupVars.conf
-echo "API_QUERY_LOG_SHOW=blockedonly" >> pihole/setupVars.conf
+if [ ! -f pihole/setupVars.conf ]
+then
+    mkdir -p pihole
+    VAR=$(cat <<END_HEREDOC
+DNSSEC=true
+API_QUERY_LOG_SHOW=blockedonly
+END_HEREDOC
+    )
+    echo "$VAR" >> pihole/setupVars.conf
+fi
 
-# run docker-compose
 docker-compose up -d
 
+# Set the admin password on the container
+docker exec -it vpn_pihole pihole -a -p $PIHOLE_ADMIN_PASSWORD $PIHOLE_ADMIN_PASSWORD
+
 # Show all values
-echo -e "${CYAN}____________________________________________________________________________${NC}"
+echo -e "${CYAN}****************************************************************************${NC}"
 echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Password is set:      $PIHOLE_PASSWORD_now                 ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Admin Page is set to: http://$HostIP:8081/admin            ${NC}"
-echo -e "${CYAN}____________________________________________________________________________${NC}\n"
+echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$HostIP:8081/admin            ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Admin Password is:    $PIHOLE_ADMIN_PASSWORD               ${NC}"
+echo -e "${CYAN}****************************************************************************${NC}\n"
 
 echo -e "${GREEN}Docker container started.${NC}"
