@@ -15,9 +15,9 @@ BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}This script uses \"the best image of OpenVPN for Docker on earth by kylemanna/openvpn\"...${NC}"
+echo -e "${CYAN}This script uses \"the best image of OpenVPN for Docker on earth by kylemanna/openvpn\".${NC}"
 
- if [ `uname -m` != 'x86_64' ]; then
+if [ `uname -m` != 'x86_64' ]; then
          echo "Building Docker Image from the kylemanna/openvpn repository..."
          # docker build -t kylemanna/openvpn https://github.com/kylemanna/docker-openvpn.git
              git clone https://github.com/kylemanna/docker-openvpn.git && cd docker-openvpn
@@ -31,7 +31,7 @@ echo -e "${CYAN}This script uses \"the best image of OpenVPN for Docker on earth
      else
          echo "Pulling the Docker Image from kylemanna/openvpn repository..."
          docker pull kylemanna/openvpn
- fi
+fi
 
 echo -e "${YELLOW}Creating directory at /openvpn_data...${NC}"
 
@@ -41,11 +41,9 @@ echo -e "OpenVPN data path is set to: $OVPN_DATA"
 
 export OVPN_DATA
 
-# OpenVPN dynDNS Domain (ex vpn.example.com:443)
-read -p "Enter your dynamic DNS hostname and port (e.g., vpn.example.com:443): " IP
+read -p "Enter your dynamic DNS server hostname and port (e.g., vpn.example.com:443): " IP
 
-# VPN Protocol 
-read -p "Choose your protocol (tcp / [udp]): " PROTOCOL
+read -p "Choose your VPN protocol (tcp / [udp]): " PROTOCOL
     
     if [ "$PROTOCOL" != "tcp" ]; then
 
@@ -97,36 +95,20 @@ PIHOLE_IP=`grep 'ipv4' docker-compose.yml | awk ' NR==2 {print $2}'`
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -n $PIHOLE_IP -u $PROTOCOL://$IP 
 # more Option: https://github.com/kylemanna/docker-openvpn/blob/master/bin/ovpn_genconfig
 
-echo -e "${YELLOW}Initializing PKI...${NC}"
+echo -e "${YELLOW}Initializing PKI.  You can safely ignore any SSL warnings due to a missing .rnd file. When prompted, enter the same hostname as before...${NC}"
+# https://superuser.com/a/1485301 and https://github.com/openssl/openssl/issues/7754
 
-#docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn "ls -l /etc/"
-
-# Prevent SSL warning due to missing file - https://github.com/openssl/openssl/issues/7754
-# docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn sed -i 's@easyrsa init-pki@easyrsa init-pki; touch /etc/openvpn/pki/.rnd ; ls -lsa /etc/openvpn/pki/ @g' /usr/local/bin/ovpn_initpki
-
-
-
-# docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn mkdir -p /etc/openvpn/pki
-# docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn touch /etc/openvpn/pki/.rnd
-# docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn chmod a+rw /etc/openvpn/pki/.rnd
-# docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ls -lsa /etc/openvpn/pki
-
-#echo -e "docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki"
 docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
 
-#Step 4
-echo -e "\nWe are now at 4th Step, Generate a client certificate with  a passphrase SAME AS YOU GIVE FOR SERVER...PASSPHRASE please wait...\n"
+read -p "Enter your alphanumeric client name (e.g., \"myclient\"): " CLIENTNAME
 
-sleep 1
-read -p "Please Provide Your Client Name " CLIENTNAME
+echo -e "${YELLOW}Generating a client certificate named \"$CLIENTNAME\" with the same passphrase you gave for the server...${NC}"
 
 # echo -e "\nI am adding a client with name $CLIENTNAME\n"
  
 docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full $CLIENTNAME nopass
 
-
-#Step 5
-echo -e "\nWe are now at 5TH Step, don't worry this is last step, you lazy GUY,Now we retrieve the client configuration with embedded certificates\n"
+echo -e "${YELLOW}Retrieving the client configuration with embedded certificates...${NC}"
 
 echo -e "\n$CLIENTNAME ok\n"
 
@@ -135,20 +117,23 @@ docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient $CLI
 # read current ServerIP
 # HostIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
 # TODO: This will fail on MacOS, no `ip` command
-if hostname -I | awk '{print $1}' ; then
-    # read IP with Linux Host
-    HostIP=`hostname -I | awk '{print $1}'`
-else
-    # read IP with MacOS Host
-    HostIP=`ipconfig getifaddr en0`
-fi
+# if [ hostname -i ] then
+#     # read IP with Linux Host
+#     HostIP=`hostname -i`
+# else
+#     # read IP with MacOS Host
+#     HostIP=`ipconfig getifaddr en0`
+# fi
+
+# TODO support geting IP address on Windows Quickstart Terminal
+HostIP=192.168.1.101
 
 # Show all values
-echo -e "\n ____________________________________________________________________________"
-echo -e "    Your VPN Domain is:                $PROTOCOL://$IP"
-echo -e "    Your Pi-Hole Password is set:      $PIHOLE_PASSWORD_now"
-echo -e "    Your Pi-Hole Admin Page is set to: http://$HostIP:8081/admin"
-echo -e "   ____________________________________________________________________________\n"
+echo -e "${CYAN}____________________________________________________________________________${NC}"
+echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Password is set:      $PIHOLE_PASSWORD_now                 ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Admin Page is set to: http://$HostIP:8081/admin            ${NC}"
+echo -e "${CYAN}____________________________________________________________________________${NC}\n"
 
 #Note: If you remove the docker container by mistake, simply copy and paster 4TH Step, all will set as previously.
 
@@ -170,3 +155,5 @@ echo "API_QUERY_LOG_SHOW=blockedonly" >> pihole/setupVars.conf
 
 # run docker-compose
 docker-compose up -d
+
+echo -e "${GREEN}Docker container started.${NC}"

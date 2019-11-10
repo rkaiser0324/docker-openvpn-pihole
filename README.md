@@ -1,8 +1,6 @@
 # docker-openvpn-pihole
 
-Create a single docker-compose and get the benefits of pi-hole on your mobile devices outside your home network.
-
-Rationale for this repository: I want to connect OpenVPN to Pi-Hole as easily as possible. However, the user can make changes (meaningful to me), or just use my preferences.
+Create a single docker-compose and get the benefits of [Pi-hole](https://pi-hole.net/) and [OpenVPN](https://openvpn.net) on any device, inside or outside your home network.  This was forked from [mr-bolle/docker-openvpn-pihole](https://github.com/mr-bolle/docker-openvpn-pihole) with some bugs fixed along with general usability enhancements.
 
 Many thanks to:  
 * GitHub @ [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn/)  
@@ -19,10 +17,10 @@ Now you can use this repository with the Hardwaretype x86_x64 and amr (Test with
 
 1. Set up a dynamic DNS hostname for your home network via Namecheap, FreeDNS, etc. 
 1. Configure your router to forward all traffic to that hostname, to the Docker container.
-1. Download and run install Script:
+1. If on Windows, launch the Docker Quickstart Terminal.
+1. Run the install script:
 ```bash
-git clone https://github.com/mr-bolle/docker-openvpn-pihole.git
-cd docker-openvpn-pihole && bash openvpn-install.sh
+openvpn-install.sh
 ```
 1. OpenVPN create certificate and first user [Source](https://github.com/kylemanna/docker-openvpn/blob/master/docs/docker-compose.md)
 
