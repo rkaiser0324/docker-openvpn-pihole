@@ -49,10 +49,14 @@ services:
        - "53:53/tcp"
        - "53:53/udp"
        - "8081:80/tcp"
+       - "443:443/tcp"
+       - "443:443/udp"
+       - "80:80/tcp"
+       - "80:80/udp"
      environment:
-       # Google.com
-       DNS1: 8.8.8.8
-       DNS2: 8.8.4.4
+       # Google.com is the default
+       # DNS1: 8.8.8.8
+       # DNS2: 8.8.4.4
        TZ: 'America/Los_Angeles'
      volumes:
        - ./pihole:/etc/pihole
