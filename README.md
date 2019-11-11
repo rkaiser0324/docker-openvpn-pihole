@@ -6,35 +6,55 @@ Many thanks to:
 * GitHub @ [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn/)  
 * GitHub @ [pi-hole/docker-pi-hole](https://github.com/pi-hole/docker-pi-hole/)
 
-Now you can use this repository with the Hardwaretype x86_x64 and amr (Test with Raspberry Pi 2)
-
-*YouTube: HowTo create this Container in about 4 Minutes*
-[![HowTo create this Container in about 4 Minutes](https://abload.de/img/screenshotcpjyo.jpg)](https://www.youtube.com/embed/8sRtCERYVzk)
-
-[Changelog](https://github.com/mr-bolle/docker-openvpn-pihole/blob/master/CHANGELOG.md)
+Now you can use this repository with the Hardwaretype x86_x64 and amr (tested with Raspberry Pi 2).
 
 ## Setup
+
+### Server
 
 1. Set up a dynamic DNS hostname for your home network via Namecheap, FreeDNS, etc. 
 1. Configure your router to forward all traffic to that hostname, to the Docker container.
 1. If on Windows, launch the Docker Quickstart Terminal.
-1. Run the install script:
+1. Run the install script to initialize both OpenVPN and Pi-Hole:
+    ```bash
+    ./openvpn-install.sh
+    ```
+    1. Choose your dynamic DNS hostname and port, e.g., `vpn.example.com:443`
+    1. Accept the default protocol of UDP
+    1. Set the admin password for Pi-Hole
+    1. Accept removal of any existing PKI if needed
+    1. Enter a passphrase for the CA key
+    1. Accept the common name of `Easy-RSA CA`
+    1. Re-enter the CA passphrase from above
+    1. Enter an alphanumeric client name, e.g., `windowsclient`.  This must be unique and not contain any special characters.
+    1. Re-enter the CA passphrase from above
+    1. Upon completion, you will see details for the OpenVPN and Pi-Hole configuration.  You can then log into the Pi-Hole admin page with your chosen password.
+
+### Client
+
+1. Set the DNS server to be the Pi-Hole IP address shown above; it will be the private address of the Docker machine (e.g., `192.168.99.100`).  
+1. Follow the [OpenVPN setup instructions](https://openvpn.net/community-resources/how-to/):
+    1. Update the `/etc/hosts` file to resolve the DNS hostname above, if necessary
+    1. Install the OpenVPN software for [Windows](https://openvpn.net/community-resources/how-to/)
+    1. Right-click the system tray icon to import the `/openvpn_data/*.ovpn` file for the client you created earlier
+    1. Click Connect
+
+## Troubleshooting
+
+You can skip the install script and simply launch Pi-Hole separately via:
 ```bash
-openvpn-install.sh
+docker-compose up -d
+# Reset the admin password on the Pi-Hole container
+docker exec -it vpn_pihole pihole -a -p PIHOLE_ADMIN_PASSWORD PIHOLE_ADMIN_PASSWORD
+# Update gravity
+docker exec -it vpn_pihole pihole -g
 ```
 
-To check a running container:
+To check the running Pi-Hole container:
 ```bash
 docker container exec vpn_pihole bash
 ```
 
-1. OpenVPN create certificate and first user [Source](https://github.com/kylemanna/docker-openvpn/blob/master/docs/docker-compose.md)
+There is a somewhat-outdated YouTube video showing setup steps here:
 
-Follow User Entry you have to made
-:bulb: **All [default] values can be accepted with ENTER** :bulb:
-1. `Please enter your dynDNS Addess:` enter your dynDNS Domain (example: `vpn.example.com`)
-2. `Please choose your Protocol (tcp / [udp])` you can change the OpenVPN to tcp, default is udp
-3. `Would you change your Pi-Hole Admin Password` the currend default password read from docker-compose
-4. `Enter PEM pass phrase:` this password is for your ca.key - and you need this to create a User Certificate
-5. `Common Name (eg: your user, host, or server name) [Easy-RSA CA]:` (default Easy-RSA CA)
-6. `Please Provide Your Client Name` with this Name you create your first OpenVPN Client
+[![HowTo create this Container in about 4 Minutes](https://abload.de/img/screenshotcpjyo.jpg)](https://www.youtube.com/embed/8sRtCERYVzk)

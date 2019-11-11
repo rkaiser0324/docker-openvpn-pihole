@@ -130,8 +130,11 @@ fi
 
 docker-compose up -d
 
-# Set the admin password on the container
+# Reset the admin password on the Pi-Hole container
 docker exec -it vpn_pihole pihole -a -p $PIHOLE_ADMIN_PASSWORD $PIHOLE_ADMIN_PASSWORD
+
+# Update gravity
+docker exec -it vpn_pihole pihole -g
 
 # Show all values
 echo -e "${CYAN}****************************************************************************${NC}"
@@ -140,4 +143,4 @@ echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$HostIP:8081/admin
 echo -e "${CYAN}    Your Pi-Hole Admin Password is:    $PIHOLE_ADMIN_PASSWORD               ${NC}"
 echo -e "${CYAN}****************************************************************************${NC}\n"
 
-echo -e "${GREEN}Docker container started.${NC}"
+echo -e "${GREEN}Docker containers started. You can now use Pi-Hole and OpenVPN.${NC}"
