@@ -6,7 +6,7 @@ Many thanks to:
 * GitHub @ [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn/)  
 * GitHub @ [pi-hole/docker-pi-hole](https://github.com/pi-hole/docker-pi-hole/)
 
-Now you can use this repository with the Hardwaretype x86_x64 and amr (tested with Raspberry Pi 2).
+Now you can use this repository with the hardware of type x86_x64 and AMR (tested with Raspberry Pi 2).
 
 ## Setup
 
@@ -15,6 +15,11 @@ Now you can use this repository with the Hardwaretype x86_x64 and amr (tested wi
 1. Set up a dynamic DNS hostname for your home network via Namecheap, FreeDNS, etc. 
 1. Configure your router to forward all traffic to that hostname, to the Docker container.
 1. If on Windows, launch the Docker Quickstart Terminal.
+1. Disable any DNS service running on port 53.  For Ubuntu 14, I needed to kill the process manually:
+    ```bash
+    ps -ef | grep bind
+    kill -9 <processid>
+    ```
 1. Run the install script to initialize both OpenVPN and Pi-Hole:
     ```bash
     ./openvpn-install.sh
@@ -50,11 +55,15 @@ docker exec -it vpn_pihole pihole -a -p <PIHOLE_ADMIN_PASSWORD> <PIHOLE_ADMIN_PA
 docker exec -it vpn_pihole pihole -g
 ```
 
-To check the running Pi-Hole container:
+And also:
+
 ```bash
-docker container exec vpn_pihole bash
+# Check the Pi-Hole configuration
+docker exec -it vpn_pihole pihole -d
+# Or log in via bash
+docker exec -it vpn_pihole bash
 ```
 
-There is a somewhat-outdated YouTube video showing setup steps here:
+Finally, there is a somewhat-outdated YouTube video showing setup steps here:
 
 [![HowTo create this Container in about 4 Minutes](https://abload.de/img/screenshotcpjyo.jpg)](https://www.youtube.com/embed/8sRtCERYVzk)

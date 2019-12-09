@@ -46,8 +46,8 @@ services:
      depends_on:
        - openvpn
      ports:
-       - "8553:53/tcp"
-       - "8553:53/udp"
+       - "53:53/tcp"
+       - "53:53/udp"
        - "8086:80/tcp"
        - "8086:80/udp"
        - "8443:443/tcp"
