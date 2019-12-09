@@ -50,8 +50,6 @@ services:
        - "53:53/udp"
        - "8086:80/tcp"
        - "8086:80/udp"
-       - "8443:443/tcp"
-       - "8443:443/udp"
      environment:
        # Google.com is the default
        # DNS1: 8.8.8.8
@@ -72,7 +70,6 @@ services:
          max-size: "5m"
          max-file: "3"
 
-# docker network create --driver=bridge --subnet=172.110.1.0/24 --gateway=172.110.1.1 vpn-net
 networks:
   vpn-net:
     ipam:

@@ -66,6 +66,7 @@ echo -e "${YELLOW}Reading IPv4 from Pi-Hole container...${NC}"
 
 # read IPv4 from Pi-Hole Container 
 PIHOLE_IP=`grep 'ipv4' docker-compose.yml | awk ' NR==2 {print $2}'`
+
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -n $PIHOLE_IP -u $PROTOCOL://$IP 
 # more Option: https://github.com/kylemanna/docker-openvpn/blob/master/bin/ovpn_genconfig
 
@@ -113,8 +114,8 @@ fi
 
 
 # create a new sub-network (if not exist)
-docker network inspect vpn-net &>/dev/null || 
-    docker network create --driver=bridge --subnet=172.110.1.0/24 --gateway=172.110.1.1 vpn-net
+# docker network inspect vpn-net &>/dev/null || 
+#     docker network create --driver=bridge --subnet=172.110.1.0/24 --gateway=172.110.1.1 vpn-net
 
 # set DNSSEC=true to pihole/setupVars.conf 
 if [ ! -f pihole/setupVars.conf ]
@@ -139,7 +140,7 @@ docker exec -it vpn_pihole pihole -g
 # Show all values
 echo -e "${CYAN}****************************************************************************${NC}"
 echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$HostIP:8081/admin            ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$IP/admin                     ${NC}"
 echo -e "${CYAN}    Your Pi-Hole Admin Password is:    $PIHOLE_ADMIN_PASSWORD               ${NC}"
 echo -e "${CYAN}****************************************************************************${NC}\n"
 

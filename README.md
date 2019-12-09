@@ -28,7 +28,7 @@ Now you can use this repository with the hardware of type x86_x64 and AMR (teste
     1. Accept the default protocol of UDP
     1. Set the admin password for Pi-Hole
     1. Accept removal of any existing PKI if needed
-    1. Enter a passphrase for the CA key
+    1. Enter a passphrase for the CA key (cannot be blank)
     1. Accept the common name of `Easy-RSA CA`
     1. Re-enter the CA passphrase from above
     1. Enter an alphanumeric client name, e.g., `windowsclient`.  This must be unique and not contain any special characters.
