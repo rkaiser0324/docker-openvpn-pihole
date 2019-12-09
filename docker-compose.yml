@@ -49,10 +49,9 @@ services:
        - "8553:53/tcp"
        - "8553:53/udp"
        - "8086:80/tcp"
+       - "8086:80/udp"
        - "8443:443/tcp"
        - "8443:443/udp"
-       #- "8085:80/tcp"
-       #- "8085:80/udp"
      environment:
        # Google.com is the default
        # DNS1: 8.8.8.8
@@ -76,4 +75,8 @@ services:
 # docker network create --driver=bridge --subnet=172.110.1.0/24 --gateway=172.110.1.1 vpn-net
 networks:
   vpn-net:
-    external: true
+    ipam:
+      driver: default
+      config:
+          - subnet: "172.110.1.0/24"
+

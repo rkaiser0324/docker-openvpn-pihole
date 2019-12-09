@@ -44,8 +44,8 @@ Now you can use this repository with the Hardwaretype x86_x64 and amr (tested wi
 You can skip the install script and simply launch Pi-Hole separately via:
 ```bash
 docker-compose up -d
-# Reset the admin password on the Pi-Hole container
-docker exec -it vpn_pihole pihole -a -p PIHOLE_ADMIN_PASSWORD PIHOLE_ADMIN_PASSWORD
+# Reset to your desired admin password on the Pi-Hole container
+docker exec -it vpn_pihole pihole -a -p <PIHOLE_ADMIN_PASSWORD> <PIHOLE_ADMIN_PASSWORD>
 # Update gravity
 docker exec -it vpn_pihole pihole -g
 ```
