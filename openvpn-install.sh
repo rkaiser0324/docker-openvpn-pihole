@@ -37,11 +37,11 @@ echo -e "${YELLOW}Creating directory at /openvpn_data...${NC}"
 
 mkdir -p $PWD/openvpn_data && OVPN_DATA=$PWD/openvpn_data
 
-echo -e "OpenVPN data path is set to: $OVPN_DATA"
+echo -e "OpenVPN data path is set to: ${CYAN}$OVPN_DATA${NC}"
 
 export OVPN_DATA
 
-read -p "Enter your dynamic DNS server hostname and port (e.g., vpn.example.com:443): " IP
+read -p "Enter your hostname and port (e.g., vpn.example.com:443): " VPN_DOMAIN
 
 read -p "Choose your VPN protocol (tcp / [udp]): " PROTOCOL
     
@@ -49,12 +49,12 @@ read -p "Choose your VPN protocol (tcp / [udp]): " PROTOCOL
 
         PROTOCOL="udp"   # set the default Protocol 
         # echo -e "\n***********************************************************"
-        # echo -e "\n * Your Domain is: $PROTOCOL://$IP *"
+        # echo -e "\n * Your Domain is: $PROTOCOL://$VPN_DOMAIN *"
         # echo -e "\n***********************************************************"
     else
         PROTOCOL="tcp"   # change Protocol to tcp
         # echo -e "\n***********************************************************"
-        # echo -e "\n * Your Domain is: $PROTOCOL://$IP *"
+        # echo -e "\n * Your Domain is: $PROTOCOL://$VPN_DOMAIN *"
         # echo -e "\n***********************************************************"
     fi
 
@@ -67,7 +67,7 @@ echo -e "${YELLOW}Reading IPv4 from Pi-Hole container...${NC}"
 # read IPv4 from Pi-Hole Container 
 PIHOLE_IP=`grep 'ipv4' docker-compose.yml | awk ' NR==2 {print $2}'`
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -n $PIHOLE_IP -u $PROTOCOL://$IP 
+docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -n $PIHOLE_IP -u $PROTOCOL://$VPN_DOMAIN 
 # more Option: https://github.com/kylemanna/docker-openvpn/blob/master/bin/ovpn_genconfig
 
 echo -e "${YELLOW}Initializing PKI.  You can safely ignore any SSL warnings due to a missing .rnd file. When prompted, enter the same hostname as before...${NC}"
@@ -139,8 +139,8 @@ docker exec -it vpn_pihole pihole -g
 
 # Show all values
 echo -e "${CYAN}****************************************************************************${NC}"
-echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$IP                      ${NC}"
-echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$IP/admin                     ${NC}"
+echo -e "${CYAN}    Your VPN Domain is:                $PROTOCOL://$VPN_DOMAIN                      ${NC}"
+echo -e "${CYAN}    Your Pi-Hole Admin URL is:         http://$VPN_DOMAIN/admin                     ${NC}"
 echo -e "${CYAN}    Your Pi-Hole Admin Password is:    $PIHOLE_ADMIN_PASSWORD               ${NC}"
 echo -e "${CYAN}****************************************************************************${NC}\n"
 
