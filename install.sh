@@ -41,7 +41,7 @@ echo -e "OpenVPN data path is set to: ${CYAN}$OVPN_DATA${NC}"
 
 export OVPN_DATA
 
-read -p "Enter your hostname and port (e.g., vpn.example.com:443): " VPN_DOMAIN
+read -p "Enter your VPN hostname (e.g., vpn.example.com): " VPN_DOMAIN
 
 read -p "Choose your VPN protocol (tcp / [udp]): " PROTOCOL
     
@@ -87,21 +87,21 @@ echo -e "${YELLOW}Retrieving the client configuration with embedded certificates
 
 docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_getclient $CLIENTNAME > $OVPN_DATA/$CLIENTNAME.ovpn
 
-if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]
-then
-    HostIP=`docker-machine ip`
-else
-    # read current ServerIP
-    # HostIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
-    # TODO: This will fail on MacOS, no `ip` command
-    if hostname -I | awk '{print $1}' ; then
-        # read IP with Linux Host
-        HostIP=`hostname -I | awk '{print $1}'`
-    else
-        # read IP with MacOS Host
-        HostIP=`ipconfig getifaddr en0`
-    fi
-fi
+# if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]
+# then
+#     HostIP=`docker-machine ip`
+# else
+#     # read current ServerIP
+#     # HostIP=`ip -4 addr show scope global dev eth0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+#     # TODO: This will fail on MacOS, no `ip` command
+#     if hostname -I | awk '{print $1}' ; then
+#         # read IP with Linux Host
+#         HostIP=`hostname -I | awk '{print $1}'`
+#     else
+#         # read IP with MacOS Host
+#         HostIP=`ipconfig getifaddr en0`
+#     fi
+# fi
 
 #Note: If you remove the docker container by mistake, simply copy and paster 4TH Step, all will set as previously.
 
